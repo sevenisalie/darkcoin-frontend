@@ -1,0 +1,44 @@
+/* ThreadView component styles */
+
+.thread-view {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .thread-view-op {
+    padding: 15px;
+    margin-bottom: 10px;
+    background-color: #f0e0d6;
+    border: 1px solid #d9bfb7;
+  }
+  
+  .thread-stats {
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: #666;
+    display: flex;
+    gap: 15px;
+  }
+  
+  .thread-view-replies {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .thread-view-reply {
+    padding: 15px;
+    animation: fadeIn 0.3s ease-in-out;
+    background-color: #f0e0d6;
+    border: 1px solid #d9bfb7;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .thread-view-form {
+    margin-top: 20px;
+  }
