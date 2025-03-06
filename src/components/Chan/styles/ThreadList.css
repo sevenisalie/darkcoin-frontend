@@ -1,15 +1,150 @@
-/* ThreadList component styles */
+/* ThreadList component styles - Exact 4chan replica */
 
 .thread-list {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-  }
-  
-  .thread-list-empty {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100px;
-    font-size: 18px;
-  }
+  margin: 0;
+  padding: 0;
+  background-color: #1D1F21;
+}
+
+.thread-list-empty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  font-size: 14px;
+  color: #FFFFFF;
+  margin: 20px 0;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin: 15px 0;
+  background-color: transparent;
+  padding: 0;
+}
+
+.pagination button {
+  margin: 0 2px;
+  padding: 2px 5px;
+  background-color: #282A2E;
+  color: #FFFFFF;
+  border: 1px solid #333;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.pagination button.active {
+  background-color: #333;
+}
+
+.pagination button:hover {
+  background-color: #333;
+}
+
+/* Thread entries and spacing */
+.thread-entry {
+  margin: 0 0 15px 0;
+  padding: 8px;
+  border-bottom: 1px solid #4a4a4a;
+}
+
+.thread-entry:last-child {
+  border-bottom: none;
+}
+
+/* Board navigation at top */
+.board-nav {
+  color: #FFFFFF;
+  font-size: 12px;
+  margin-bottom: 10px;
+  padding: 5px 0;
+  border-bottom: 1px solid #333;
+}
+
+.board-nav a {
+  color: #789922;
+  text-decoration: none;
+  margin: 0 5px;
+}
+
+.board-nav a:hover {
+  text-decoration: underline;
+}
+
+/* Catalog view link */
+.catalog-link {
+  color: #789922;
+  text-decoration: none;
+  margin-left: 10px;
+  font-size: 12px;
+}
+
+.catalog-link:hover {
+  text-decoration: underline;
+}
+
+/* Back to top link */
+.back-to-top {
+  color: #789922;
+  text-decoration: none;
+  display: block;
+  text-align: center;
+  margin: 15px 0;
+  font-size: 12px;
+}
+
+.back-to-top:hover {
+  text-decoration: underline;
+}
+
+/* Thread separator */
+.thread-separator {
+  height: 1px;
+  background-color: #333;
+  margin: 15px 0;
+  border: none;
+}
+
+/* Board stats */
+.board-stats {
+  color: #707070;
+  font-size: 12px;
+  margin: 5px 0;
+  text-align: center;
+}
+
+/* Thread numbering */
+.thread-number {
+  color: #707070;
+  font-size: 12px;
+}
+
+/* Thread metrics */
+.thread-metrics {
+  color: #707070;
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+/* File info in thread list */
+.thread-file-info {
+  color: #707070;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+/* Post preview in thread list */
+.post-preview-container {
+  margin-left: 20px;
+  padding-left: 3px;
+  border-left: 1px solid #333;
+  margin-top: 5px;
+}
+
+/* Omitted text styling */
+.omitted-content {
+  color: #707070;
+  font-size: 12px;
+  margin: 4px 0;
+}

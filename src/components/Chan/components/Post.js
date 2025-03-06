@@ -1,8 +1,13 @@
 import React from 'react';
 import '../styles/Post.css';
+import { uuidToPostNumber, getRepeatingType } from '../utils/postNumber';
 
-const Post = ({ post, isOp = false, isPreview = false, onDelete = null }) => {
-  const { id, subject, text, formattedTime, authorId, authorIp, image } = post;
+const Post = ({ post, isOp = false, isPreview = false, onDelete = null, onReply = null, replyRef = null }) => {
+  const { id, subject, text, formattedTime, authorId, authorIp, image, tripcode, reply_to } = post;
+  
+  // Convert UUID to post number
+  const postNumber = uuidToPostNumber(id);
+  const repeatingType = getRepeatingType(postNumber);
   
   // Function to handle quoting posts
   const handleQuote = (event) => {
@@ -13,13 +18,48 @@ const Post = ({ post, isOp = false, isPreview = false, onDelete = null }) => {
     if (replyForm) {
       // Add the quote to the form
       const currentText = replyForm.value;
-      const quote = `>>${id}\n`;
+      const quote = `>>${postNumber}\n`;
       replyForm.value = currentText + quote;
       replyForm.focus();
       
       // Scroll to the form
       replyForm.scrollIntoView({ behavior: 'smooth' });
     }
+  };
+  
+  // Format file information
+  const renderFileInfo = () => {
+    if (!image) return null;
+    
+    // Extract filename from path or use default
+    const fileName = image.split('/').pop() || 'image.jpg';
+    const fileSize = '20 KB'; // This would be dynamic in a real app
+    const dimensions = '400x544'; // This would be dynamic in a real app
+    
+    return (
+      <div className="file-section">
+        <span className="file-tag">File: </span>
+        <a href={image} target="_blank" rel="noreferrer" className="file-original">{fileName}</a>
+        <span className="file-dimensions"> ({fileSize}, {dimensions})</span>
+      </div>
+    );
+  };
+  
+  // Render reference to replied post
+  const renderReplyReference = () => {
+    if (!replyRef) return null;
+    
+    // Convert the reference UUID to a post number too
+    const refPostNumber = uuidToPostNumber(replyRef.id);
+    
+    return (
+      <div className="reply-reference">
+        <a href={`#p${replyRef.id}`} className="quoted-post">
+          &gt;&gt;{refPostNumber}
+          {replyRef.isOp ? ' (OP)' : ''}
+        </a>
+      </div>
+    );
   };
   
   // Function to convert text with quotes and post references to JSX with proper styling
@@ -79,7 +119,6 @@ const Post = ({ post, isOp = false, isPreview = false, onDelete = null }) => {
           parts.push(lineWithEscapedChars.substring(lastIndex));
         }
         
-        // Fix: Using only dangerouslySetInnerHTML without children
         return (
           <div key={lineIndex}>
             {parts.length > 0 ? (
@@ -104,8 +143,27 @@ const Post = ({ post, isOp = false, isPreview = false, onDelete = null }) => {
     });
   };
 
+  // Determine if the user is a mod - in a real app this would be a check against mod IDs
+  const isMod = authorId.includes('## Mod');
+  const modParts = isMod ? authorId.split('## Mod') : [authorId];
+  const displayName = modParts[0].trim();
+
+  // Handle reply button click
+  const handleReplyClick = (e) => {
+    e.preventDefault();
+    if (onReply) {
+      onReply();
+    }
+  };
+
   return (
     <div className={`post ${isOp ? 'post-op' : ''} ${isPreview ? 'post-preview' : ''}`} id={`p${id}`}>
+      {/* Only show file info for non-preview posts */}
+      {!isPreview && renderFileInfo()}
+      
+      {/* Show reference to replied post if applicable */}
+      {renderReplyReference()}
+      
       <div className="post-header">
         {subject && (
           <span className="post-subject">
@@ -113,32 +171,44 @@ const Post = ({ post, isOp = false, isPreview = false, onDelete = null }) => {
           </span>
         )}
         
-        <span className="post-author">
-          {authorId}
+        <span className="name-block">
+          {isMod ? (
+            <>
+              {displayName} <span className="mod-tag">## Mod</span>
+            </>
+          ) : (
+            displayName
+          )}
+          {tripcode && (
+            <span className="post-tripcode">!{tripcode}</span>
+          )}
         </span>
         
-        <span className="post-time">
+        <span className="post-date">
           {formattedTime}
         </span>
         
-        <span className="post-id">
-          No.{id}
-        </span>
+        <a href={`#p${id}`} className="post-number">
+          No.{postNumber}
+          {repeatingType && (
+            <span className={`post-repeating ${repeatingType}`} title={`This post has ${repeatingType}!`}>
+              {repeatingType === 'dubs' && '(dubs)'}
+              {repeatingType === 'trips' && '(trips!!)'}
+              {repeatingType === 'quads' && '(quads!!!)'}
+              {repeatingType === 'quints' && '(quints!!!!)'}
+            </span>
+          )}
+        </a>
         
-        {!isPreview && (
-          <span className="post-ip">
-            ({authorIp})
-          </span>
-        )}
-        
-        {onDelete && (
-          <button 
-            className="post-delete-btn"
-            onClick={onDelete}
-            title="Delete post"
+        {/* Reply link shown only for non-preview posts */}
+        {!isPreview && onReply && (
+          <a 
+            href="#" 
+            onClick={handleReplyClick} 
+            className="post-reply-link"
           >
-            ×
-          </button>
+            [Reply]
+          </a>
         )}
       </div>
       
