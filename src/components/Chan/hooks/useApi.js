@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios'; // Make sure to run: npm install axios
 
-const API_BASE_URL = 'https://darkchan-api.onrender.com';
+const API_BASE_URL = 'https://darkchan-api.onrender.com/api';
+
 
 // Create an axios instance with default configuration
 const api = axios.create({
