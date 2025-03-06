@@ -1,63 +1,191 @@
-/* Main Chan component styles */
+/* Main Chan component styles - Exact 4chan replica */
 
 .chan-container {
-    width: 100%;
-    max-width: 1024px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: Arial, sans-serif;
-    color: #333;
-    background-color: #efefef;
-  }
-  
-  .chan-loading,
-  .chan-error {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 300px;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 2px;
-  }
-  
-  .loading-text,
-  .error-text {
-    font-size: 16px;
-    font-weight: bold;
-  }
-  
-  .terminal-cursor {
-    animation: blink 1s step-end infinite;
-  }
-  
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-  }
-  
-  .chan-form-container {
-    margin-bottom: 30px;
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .chan-container {
-      padding: 10px;
-    }
-  }
-  
-  /* Override terminal container styles */
-  .terminal-container {
-    background-color: #fff !important;
-    border: 1px solid #ccc !important;
-    color: #333 !important;
-    box-shadow: none !important;
-  }
-  
-  /* Override terminal text */
-  .terminal-text {
-    color: #333 !important;
-    text-shadow: none !important;
-    font-family: Arial, sans-serif !important;
-  }
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 8px;
+  font-family: arial, helvetica, sans-serif;
+  color: #FFFFFF;
+  background-color: #1D1F21;
+  line-height: 1.2;
+}
+
+.chan-loading,
+.chan-error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  background-color: #1D1F21;
+  border: none;
+}
+
+.loading-text,
+.error-text {
+  font-size: 14px;
+  font-weight: normal;
+  color: #FFFFFF;
+}
+
+.chan-form-container {
+  margin: 0 0 10px 0;
+}
+
+/* Make sure no text-shadow is applied to any text in chan-page */
+.chan-page * {
+  text-shadow: none !important;
+}
+
+/* File info at the top of posts */
+.file-info {
+  color: #707070;
+  font-size: 12px;
+  line-height: 1.4;
+  margin-bottom: 2px;
+}
+
+.file-link {
+  color: #789922;
+  text-decoration: underline;
+}
+
+.file-link:hover {
+  text-decoration: none;
+}
+
+/* Thread container */
+.thread-container {
+  margin: 0;
+  padding: 0;
+}
+
+/* For the >> that appears at the beginning of replies */
+.reply-marker {
+  color: #707070;
+  font-size: 14px;
+  margin-right: 3px;
+}
+
+/* Board title styling at the top */
+.board-title {
+  color: #FFFFFF;
+  font-weight: bold;
+  font-size: 22px;
+  margin: 0;
+  padding: 0;
+}
+
+/* Styling for thread-level metadata display */
+.thread-metadata {
+  font-size: 12px;
+  color: #707070;
+  margin: 2px 0;
+}
+
+.post-number {
+  color: #FCFCFC !important;
+  text-decoration: none !important;
+  font-size: 14px;
+}
+
+/* Make links in post numbers look like 4chan */
+.post-number-link {
+  color: #FFFFFF;
+  text-decoration: none;
+}
+
+.post-number-link:hover {
+  color: #FFFFFF;
+  text-decoration: underline;
+}
+
+/* Click here to view text */
+.click-to-view {
+  color: #789922;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.click-to-view:hover {
+  text-decoration: none;
+}
+
+/* Omitted replies text */
+.omitted-text {
+  color: #707070;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  margin: 3px 0;
+}
+
+/* Style for file: attachment text at the top */
+.file-tag {
+  color: #707070;
+}
+
+/* Top-level reply container for full thread view */
+.thread-reply-container {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+/* Reply button text */
+.reply-text {
+  color: #789922;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.reply-text:hover {
+  text-decoration: underline;
+}
+
+/* Expand link styling */
+.expand-link {
+  color: #789922;
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.expand-link:hover {
+  text-decoration: none;
+}
+
+/* Post header container */
+.post-header-container {
+  margin-bottom: 3px;
+}
+
+/* Post date and info */
+.post-info {
+  color: #707070;
+  font-size: 12px;
+}
+
+/* Reply link for thread */
+.thread-reply-link {
+  position: absolute;
+  right: 8px;
+  color: #789922;
+  text-decoration: none;
+}
+
+.thread-reply-link:hover {
+  text-decoration: underline;
+}
+
+/* Redefining terminal container for chan */
+.chan-page .terminal-container {
+  background-color: transparent !important;
+  border: none !important;
+  color: #FFFFFF !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  text-shadow: none !important;
+}

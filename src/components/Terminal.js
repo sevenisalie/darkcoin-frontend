@@ -83,11 +83,10 @@ const Terminal = () => {
           
           <TerminalLine delay={5900} prompt={false}>
             <ul className="ml-5 list-disc space-y-1">
-              <li>Revolutionary stealth launch technology</li>
-              <li>Anti-sniper mechanisms = fair distribution</li>
-              <li>Zero rug potential (liquidity locked forever)</li>
+              <li>Anti-sniper stealth technology</li>
+              <li>Rugproof Social Mechanisms</li>
               <li>Advanced market manipulation countermeasures</li>
-              <li>Tokenomics engineered for inevitable growth</li>
+              <li>Multi-generation Governance Distribution</li>
             </ul>
           </TerminalLine>
           

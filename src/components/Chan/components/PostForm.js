@@ -1,75 +1,147 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/PostForm.css';
-
-const PostForm = ({ onSubmit, isThread = false, userIp, threadId = null }) => {
+import { uuidToPostNumber } from '../utils/postNumber';
+const PostForm = ({ 
+  onSubmit, 
+  isThread = false, 
+  userIp, 
+  threadId = null, 
+  loading = false, 
+  error = null,
+  replyToPost = null,
+  compact = false
+}) => {
   const [subject, setSubject] = useState('');
   const [text, setText] = useState('');
-  const [image, setImage] = useState(null);
-  const [error, setError] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [file, setFile] = useState(null);
+  const [name, setName] = useState('');
+  const [password, setPassword] = useState('');
+  const [isNsfw, setIsNsfw] = useState(false);
+  const [replyTo, setReplyTo] = useState('');
+  const [localError, setLocalError] = useState('');
+  const [filePreview, setFilePreview] = useState(null);
 
-  const handleSubmit = (e) => {
+  // Initialize reply text if replying to a specific post
+  useEffect(() => {
+    if (replyToPost) {
+      setReplyTo(replyToPost.id);
+      const postNum = uuidToPostNumber(replyToPost.id);
+      setText(`>>${postNum}\n`);
+    }
+  }, [replyToPost]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     // Validate form
-    if (!text.trim() && !image) {
-      setError('A message or image is required.');
+    if (!text.trim() && !file) {
+      setLocalError('A message or image is required.');
       return;
     }
     
     if (text.length > 2000) {
-      setError('Message too long (maximum is 2000 characters).');
+      setLocalError('Message too long (maximum is 2000 characters).');
       return;
     }
     
-    setIsSubmitting(true);
-    setError('');
-    
-    // For demo purposes, simulate image upload with a placeholder
-    // In a real app, you would upload the image to your server
-    let imageUrl = null;
-    if (image) {
-      // Generate a random placeholder for demo purposes
-      const width = 300 + Math.floor(Math.random() * 300);
-      const height = 300 + Math.floor(Math.random() * 300);
-      imageUrl = `/api/placeholder/${width}/${height}`;
-    }
+    setLocalError('');
     
     // Submit the post
-    onSubmit({
+    const result = await onSubmit({
       subject: subject.trim(),
       text: text.trim(),
-      image: imageUrl
+      file: file,
+      name: name.trim() || 'Anonymous',
+      password: password.trim(),
+      is_nsfw: isNsfw,
+      reply_to: replyTo || null
     });
     
-    // Reset form
-    setSubject('');
-    setText('');
-    setImage(null);
-    setIsSubmitting(false);
+    // Only reset form if submission was successful
+    if (result) {
+      // Reset form
+      setSubject('');
+      setText('');
+      setFile(null);
+      setName('');
+      setPassword('');
+      setIsNsfw(false);
+      setReplyTo('');
+      setFilePreview(null);
+    }
   };
 
   const handleImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      setImage(e.target.files[0]);
+      const selectedFile = e.target.files[0];
+      
+      // Check file size (limit to 4MB)
+      if (selectedFile.size > 4 * 1024 * 1024) {
+        setLocalError('File size exceeds the 4MB limit.');
+        return;
+      }
+      
+      // Check file type
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(selectedFile.type)) {
+        setLocalError('Only JPEG, PNG, GIF, and WEBP files are allowed.');
+        return;
+      }
+      
+      setFile(selectedFile);
+      
+      // Create a preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFilePreview(reader.result);
+      };
+      reader.readAsDataURL(selectedFile);
+      
+      setLocalError('');
     }
   };
 
   const removeImage = () => {
-    setImage(null);
+    setFile(null);
+    setFilePreview(null);
   };
 
+  // Extract post number from quote text in the textarea
+  const handleTextChange = (e) => {
+    const text = e.target.value;
+    setText(text);
+    
+    // Check if text contains a reply reference (>>123456)
+    const matches = text.match(/&gt;&gt;(\d+)/g) || text.match(/>>(\d+)/g);
+    if (matches && matches.length > 0) {
+      // Extract the last post ID referenced
+      const lastMatch = matches[matches.length - 1];
+      const postId = lastMatch.replace(/&gt;&gt;|>>/g, '');
+      setReplyTo(postId);
+    } else if (replyToPost) {
+      // Keep original reply target if manually set
+      setReplyTo(replyToPost.id);
+    } else {
+      setReplyTo('');
+    }
+  };
+
+  // Additional class for compact mode (floating reply form)
+  const formClass = compact ? 'post-form compact-form' : 'post-form';
+
   return (
-    <div className="post-form terminal-container">
-      <div className="post-form-header">
-        <span className="form-title font-terminal text-terminal-bright-green">
-          {isThread ? 'Create New Thread' : 'Reply to Thread'}
-        </span>
-      </div>
+    <div className={formClass}>
+      {!compact && (
+        <div className="post-form-header">
+          <span className="form-title">
+            {isThread ? 'Create New Thread' : `Reply to Thread${replyToPost ? ` No.${replyToPost.id}` : ''}`}
+          </span>
+        </div>
+      )}
       
-      {error && (
+      {(localError || error) && (
         <div className="post-form-error">
-          <span className="text-red-500">{error}</span>
+          <span className="error-text">{localError || error}</span>
         </div>
       )}
       
@@ -77,62 +149,112 @@ const PostForm = ({ onSubmit, isThread = false, userIp, threadId = null }) => {
         <div className="form-grid">
           {isThread && (
             <div className="form-group">
-              <label htmlFor="subject" className="terminal-text">Subject</label>
+              <label htmlFor="subject" className="form-label">Subject</label>
               <input
                 type="text"
                 id="subject"
-                className="terminal-input"
+                className="form-input"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 maxLength={100}
+                disabled={loading}
               />
             </div>
           )}
           
+          <div className="form-group">
+            <label htmlFor="name" className="form-label">Name (optional)</label>
+            <input
+              type="text"
+              id="name"
+              className="form-input"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              maxLength={50}
+              disabled={loading}
+              placeholder="Anonymous"
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="password" className="form-label">Password (for post deletion)</label>
+            <input
+              type="password"
+              id="password"
+              className="form-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
+            />
+          </div>
+          
           <div className="form-group file-input-group">
-            <label htmlFor="image" className="terminal-text">Image</label>
+            <label htmlFor="image" className="form-label">Image</label>
             <input
               type="file"
               id="image"
-              className="terminal-file-input"
+              className="form-file-input"
               onChange={handleImageChange}
               accept="image/*"
+              disabled={loading}
             />
-            {image && (
-              <button 
-                type="button" 
-                className="remove-image-btn"
-                onClick={removeImage}
-              >
-                Remove
-              </button>
+            {filePreview && (
+              <div className="file-preview">
+                <img 
+                  src={filePreview} 
+                  alt="Preview" 
+                  className="preview-image"
+                />
+                <button 
+                  type="button" 
+                  className="remove-image-btn"
+                  onClick={removeImage}
+                  disabled={loading}
+                >
+                  Remove
+                </button>
+              </div>
             )}
           </div>
           
+          <div className="form-group checkbox-group">
+            <div className="checkbox-container">
+              <input
+                type="checkbox"
+                id="nsfw"
+                checked={isNsfw}
+                onChange={(e) => setIsNsfw(e.target.checked)}
+                disabled={loading}
+              />
+              <label htmlFor="nsfw" className="checkbox-label">NSFW</label>
+            </div>
+          </div>
+          
           <div className="form-group full-width">
-            <label htmlFor="comment" className="terminal-text">Comment</label>
+            <label htmlFor="comment" className="form-label">Comment</label>
             <textarea
               id="comment"
-              className="terminal-textarea"
+              className="form-textarea"
               value={text}
-              onChange={(e) => setText(e.target.value)}
-              rows={5}
+              onChange={handleTextChange}
+              rows={compact ? 4 : 5}
               maxLength={2000}
+              disabled={loading}
             ></textarea>
           </div>
           
           <div className="form-footer">
-            <div className="user-info terminal-text">
+            <div className="user-info">
               <span className="user-id">ID: Anonymous</span>
-              <span className="user-ip">{userIp}</span>
+         
             </div>
             
             <button 
               type="submit" 
-              className="btn-terminal-primary"
-              disabled={isSubmitting}
+              className="form-button"
+              disabled={loading}
             >
-              {isSubmitting ? 'Submitting...' : isThread ? 'Post Thread' : 'Post Reply'}
+              {loading ? 'Submitting...' : isThread ? 'Post Thread' : 'Post Reply'}
             </button>
           </div>
         </div>

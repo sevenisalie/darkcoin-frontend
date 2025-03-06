@@ -17,10 +17,10 @@ const ChanFooter = () => {
           <span className="chan-logo-text-highlight">CHAN</span> © 2025
         </p>
         <p className="chan-disclaimer">
-          All posts on this board reflect the opinions of their authors and not the algorithms that control us all.
+          All posts on this board are the responsibility of the individual poster and not the administrators.
         </p>
         <p className="chan-disclaimer">
-          All content posted anonymously. The system has already identified you.
+          All content posted anonymously. Board administrators may or may not be held liable for content.
         </p>
       </div>
       
