@@ -1,125 +1,270 @@
-/* Post component styles */
+/* Post component styles - Exact 4chan replica */
 
 .post {
-    display: flex;
-    flex-direction: column;
-    font-family: Arial, sans-serif;
-  }
-  
-  .post-op {
-    border-bottom: 1px solid #d9bfb7;
-    padding-bottom: 15px;
-  }
-  
-  .post-preview {
-    padding: 8px 0;
-    border-bottom: 1px dotted #d9bfb7;
-  }
-  
-  .post-preview:last-child {
-    border-bottom: none;
-  }
-  
-  .post-header {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-  
-  .post-subject {
-    font-weight: bold;
-    color: #0f0c5d;
-  }
-  
-  .post-author {
-    color: #117743;
-    font-weight: bold;
-  }
-  
-  .post-time,
-  .post-ip {
-    font-size: 12px;
-    color: #666;
-  }
-  
-  .post-id {
-    font-size: 12px;
-    color: #666;
-  }
-  
-  .post-delete-btn {
-    background: none;
-    border: none;
-    color: #d00;
-    cursor: pointer;
-    font-size: 16px;
-    padding: 0 5px;
-  }
-  
-  .post-delete-btn:hover {
-    color: #ff3333;
-  }
-  
-  .post-content {
-    display: flex;
-    gap: 15px;
-  }
-  
-  .post-image {
-    flex-shrink: 0;
-    margin-bottom: 10px;
-  }
-  
-  .post-image img {
-    max-width: 250px;
-    max-height: 250px;
-    border: 1px solid #ccc;
-  }
-  
-  .post-preview .post-image img {
-    max-width: 125px;
-    max-height: 125px;
-  }
-  
-  .post-text {
-    flex-grow: 1;
-    word-break: break-word;
-    font-size: 14px;
-    line-height: 1.4;
-    color: #333;
-    font-family: Arial, sans-serif;
-  }
-  
-  .post-paragraph {
-    margin-bottom: 10px;
-  }
-  
-  .post-paragraph:last-child {
-    margin-bottom: 0;
-  }
-  
-  .greentext {
-    color: #789922;
-  }
-  
-  .post-reference {
-    color: #d00;
-    text-decoration: none;
-  }
-  
-  .post-reference:hover {
-    text-decoration: underline;
-  }
-  
-  @media (max-width: 768px) {
-    .post-content {
-      flex-direction: column;
-    }
-    
-    .post-image img {
-      max-width: 100%;
-      height: auto;
-    }
-  }
+  margin: 4px 0;
+  padding: 0;
+  font-family: arial, helvetica, sans-serif;
+  background-color: #292b2d;
+  position: relative;
+}
+
+.post-op {
+  margin: 4px 0 7px 0;
+}
+
+.post-preview {
+  margin: 0;
+  padding: 4px 0 0 0;
+}
+
+.post-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.post-subject {
+  font-weight: bold;
+  color: #ae0d2b;
+  font-size: 14px;
+}
+
+.post-author {
+  color: #117743;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.post-tripcode {
+  color: #FFFFFF;
+  font-weight: normal;
+  margin-left: 0;
+  font-size: 14px;
+}
+
+.post-time,
+.post-ip {
+  font-size: 14px;
+  color: #FFFFFF;
+}
+
+.post-id {
+  font-size: 14px;
+  color: #FFFFFF;
+}
+
+.post-reply-to {
+  font-size: 14px;
+  margin-left: 4px;
+}
+
+.post-reply-to a {
+  color: #789922;
+  text-decoration: underline;
+}
+
+.post-reply-to a:hover {
+  text-decoration: none;
+}
+
+.post-delete-btn {
+  background: none;
+  border: none;
+  color: #EF4444;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0 5px;
+  display: none; /* Hidden in 4chan-like view */
+}
+
+/* Critical fixes for post content and image display */
+.post-content {
+  display: block;
+  position: static; /* Changed from relative to avoid creating stacking contexts */
+  overflow: hidden; /* Clear floats */
+}
+
+.post-image {
+  float: left;
+  margin: 0 20px 5px 0;
+  position: static; /* No positioning that might create stacking contexts */
+}
+
+.post-image a {
+  display: inline-block; /* Make links properly clickable */
+  position: relative; /* Keep position relative only on the direct parent of img */
+}
+
+.post-image img {
+  border: none;
+  margin: 0;
+  padding: 0;
+  max-width: 250px;
+  max-height: 250px;
+  display: block; /* Ensures proper display */
+  border: none !important;
+}
+
+.post-preview .post-image img {
+  max-width: 125px;
+  max-height: 125px;
+}
+
+.post-text {
+  font-size: 14px;
+  line-height: 1.4;
+  color: #FFFFFF;
+  font-family: arial, helvetica, sans-serif;
+  word-wrap: break-word;
+  overflow: visible;
+}
+
+.post-paragraph {
+  margin: 0 0 12px 0;
+}
+
+.post-paragraph:last-child {
+  margin-bottom: 0;
+}
+
+/* Greentext styling matching 4chan exactly */
+.greentext {
+  color: #789922;
+  font-size: 14px;
+}
+
+/* Post number reference styling */
+.post-reference {
+  color: #789922;
+  text-decoration: underline;
+}
+
+.post-reference:hover {
+  text-decoration: none;
+}
+
+/* Styling for quoted posts with >> */
+a[href^="#p"] {
+  color: #789922;
+  text-decoration: underline;
+}
+
+a[href^="#p"]:hover {
+  text-decoration: none;
+}
+
+/* Reply button styling */
+.post-reply-link {
+  color: #789922;
+  text-decoration: none;
+  margin-left: 5px;
+  font-size: 14px;
+}
+
+.post-reply-link:hover {
+  text-decoration: underline;
+}
+
+/* File info styling */
+.file-section {
+  font-size: 12px;
+  color: #707070;
+  margin-bottom: 5px;
+  line-height: 1.2;
+  clear: both; /* Ensure file info appears above image */
+}
+
+.file-original {
+  color: #789922;
+  text-decoration: underline;
+}
+
+.file-original:hover {
+  text-decoration: none;
+}
+
+.file-dimensions {
+  color: #707070;
+}
+
+/* Exact 4chan name styling */
+.name-block {
+  display: inline;
+  color: #117743;
+  font-weight: bold;
+}
+
+/* Date and time formatting */
+.post-date {
+  color: #FCFCFC;
+  font-size: 14px;
+}
+
+/* Special username colors for different poster types */
+.admin-name {
+  color: #FF0000 !important;
+}
+
+.mod-name {
+  color: #800080 !important;
+}
+
+.developer-name {
+  color: #0000FF !important;
+}
+
+/* File info section layout */
+.file-info-block {
+  margin-bottom: 2px;
+  font-size: 12px;
+  color: #707070;
+}
+
+/* Reply reference styling - when a post references another post */
+.reply-reference {
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.quoted-post {
+  color: #789922;
+  text-decoration: underline;
+}
+
+.quoted-post:hover {
+  text-decoration: none;
+}
+
+/* Post number repeating indicators */
+.post-repeating {
+  display: inline-block;
+  margin-left: 5px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.post-repeating.dubs {
+  color: #14A5DE;
+}
+
+.post-repeating.trips {
+  color: #D23C3C;
+}
+
+.post-repeating.quads {
+  color: #FF0000;
+  font-size: 13px;
+}
+
+.post-repeating.quints {
+  color: #FF0000;
+  text-shadow: 0 0 2px gold;
+  font-size: 14px;
+}
+
+/* When a post is being quoted or referenced */
+.post.is-referenced {
+  background-color: rgba(121, 153, 34, 0.1);
+}

@@ -1,16 +1,37 @@
 import React from 'react';
 import { FiTwitter, FiGithub, FiMessageCircle, FiGlobe } from 'react-icons/fi';
+import { Link, useLocation } from 'react-router-dom';
 
 const Footer = () => {
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
+
+  // Function to create links that work correctly on both pages
+  const FooterLink = ({ to, children }) => {
+    if (to.startsWith('#')) {
+      // If it's an anchor link
+      if (isHomePage) {
+        // On home page, just use the anchor
+        return <a href={to} className="text-terminal-green hover:text-terminal-bright-green transition-colors text-sm font-terminal">{children}</a>;
+      } else {
+        // On other pages, go back to home with the anchor
+        return <Link to={`/${to}`} className="text-terminal-green hover:text-terminal-bright-green transition-colors text-sm font-terminal">{children}</Link>;
+      }
+    } else {
+      // For non-anchor links (like /chan)
+      return <Link to={to} className="text-terminal-green hover:text-terminal-bright-green transition-colors text-sm font-terminal">{children}</Link>;
+    }
+  };
+
   return (
     <footer className="bg-terminal-dark border-t border-terminal-green py-8">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="mb-6 md:mb-0">
-            <div className="flex items-center justify-center md:justify-start">
+            <Link to="/" className="flex items-center justify-center md:justify-start">
               <div className="font-pixel text-terminal-green text-xl mr-2">DARK</div>
               <div className="font-pixel text-terminal-bright-green text-xl">COIN</div>
-            </div>
+            </Link>
             <div className="mt-2 text-xs text-terminal-dim-green font-terminal text-center md:text-left">
               THE KEY TO THE INEVITABLE FUTURE
             </div>
@@ -35,11 +56,12 @@ const Footer = () => {
           
           <div className="text-center md:text-right">
             <div className="flex flex-wrap justify-center md:justify-end space-x-4 mb-4">
-              <a href="#about" className="text-terminal-green hover:text-terminal-bright-green transition-colors text-sm font-terminal">ABOUT</a>
-              <a href="#tokenomics" className="text-terminal-green hover:text-terminal-bright-green transition-colors text-sm font-terminal">TOKENOMICS</a>
-              <a href="#roadmap" className="text-terminal-green hover:text-terminal-bright-green transition-colors text-sm font-terminal">ROADMAP</a>
-              <a href="#buy" className="text-terminal-green hover:text-terminal-bright-green transition-colors text-sm font-terminal">BUY</a>
-              <a href="#faq" className="text-terminal-green hover:text-terminal-bright-green transition-colors text-sm font-terminal">FAQ</a>
+              <FooterLink to="#about">ABOUT</FooterLink>
+              <FooterLink to="#tokenomics">TOKENOMICS</FooterLink>
+              <FooterLink to="#roadmap">ROADMAP</FooterLink>
+              <FooterLink to="#buy">BUY</FooterLink>
+              <FooterLink to="#faq">FAQ</FooterLink>
+              <FooterLink to="/chan">DARKCHAN</FooterLink>
             </div>
             <div className="text-xs text-terminal-dim-green font-terminal">
               &copy; 2025 DarkCoin. The algorithm is always watching.

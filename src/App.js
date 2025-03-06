@@ -7,8 +7,9 @@ import Roadmap from './components/Roadmap';
 import BuySection from './components/BuySection';
 import FAQ from './components/FAQ';
 import Footer from './components/Footer';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route, Link } from 'react-router-dom';
 import Chan from './components/Chan/Chan';
+
 function App() {
   const [loading, setLoading] = useState(true);
 
@@ -47,17 +48,17 @@ function App() {
       <div className="scanline"></div>
       
       <Header />
-      <Routes >
-      {/* <Route path="/" element={
-            <main className="container mx-auto px-4 pb-16 relative z-10">
-              <Hero />
-              <Terminal />
-              <Tokenomics />
-              <Roadmap />
-              <BuySection />
-              <FAQ />
-            </main>
-          } /> */}
+      <Routes>
+        <Route path="/" element={
+          <main className="container mx-auto px-4 pb-16 relative z-10">
+            <Hero />
+            <Terminal />
+            <Tokenomics />
+            <Roadmap />
+            <BuySection />
+            <FAQ />
+          </main>
+        } />
         <Route path="/chan" element={<Chan />} />
       </Routes>
       <Footer />

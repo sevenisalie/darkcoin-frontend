@@ -4,48 +4,91 @@ import ThreadList from './components/ThreadList';
 import PostForm from './components/PostForm';
 import ChanFooter from './components/ChanFooter';
 import ThreadView from './components/ThreadView';
-import { generateRandomId, formatTimestamp } from './utils/helpers';
+import { formatTimestamp } from './utils/helpers';
+import { 
+  useThreads, 
+  useThread, 
+  useCreateThread, 
+  useAddReply, 
+  useDeleteThread, 
+  useDeletePost,
+  useBoardStats,
+  createFormData
+} from './hooks/useApi';
 import './styles/Chan.css';
 
 const Chan = () => {
-  const [threads, setThreads] = useState([]);
-  const [selectedThread, setSelectedThread] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [selectedThreadId, setSelectedThreadId] = useState(null);
+  const [page, setPage] = useState(1);
+  const pageSize = 20;
   const [userIp, setUserIp] = useState('Anonymous');
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [lastPostId, setLastPostId] = useState(0);
-  const MAX_THREADS = 150;
-  const MAX_POSTS_PER_THREAD = 300;
+  const [password, setPassword] = useState('');
   const messagesEndRef = useRef(null);
 
-  // Simulate loading initial threads
+  // Add body class when the component mounts
   useEffect(() => {
-    const loadInitialThreads = async () => {
-      try {
-        setIsLoading(true);
-        
-        // In a real application, this would fetch from an API
-        // For demo purposes, we'll generate some sample threads
-        const sampleThreads = generateSampleThreads(20);
-        
-        // Sort threads by last activity (most recent first)
-        sampleThreads.sort((a, b) => b.lastBumpTime - a.lastBumpTime);
-        
-        setThreads(sampleThreads);
-        setLastPostId(Math.max(...sampleThreads.flatMap(thread => 
-          [thread.id, ...thread.replies.map(reply => reply.id)]
-        )));
-        
-        setIsLoading(false);
-      } catch (err) {
-        setError("Failed to load threads. The system knows what you did.");
-        setIsLoading(false);
-        console.error(err);
-      }
+    document.body.classList.add('chan-page');
+    
+    // Remove class when component unmounts
+    return () => {
+      document.body.classList.remove('chan-page');
     };
+  }, []);
 
-    // Generate a fake user IP for anonymity display
+  // Fetch threads list with pagination
+  const { 
+    threads, 
+    pagination, 
+    loading: threadsLoading, 
+    error: threadsError, 
+    refetch: refetchThreads 
+  } = useThreads(page, pageSize);
+
+  // Fetch selected thread with all replies
+  const { 
+    thread: selectedThread, 
+    posts: threadPosts, 
+    loading: threadLoading, 
+    error: threadError, 
+    refetch: refetchThread 
+  } = useThread(selectedThreadId);
+
+  // Create thread hook
+  const { 
+    createThread, 
+    loading: createThreadLoading, 
+    error: createThreadError 
+  } = useCreateThread();
+
+  // Add reply hook
+  const { 
+    addReply, 
+    loading: addReplyLoading, 
+    error: addReplyError 
+  } = useAddReply(selectedThreadId);
+
+  // Delete thread hook
+  const { 
+    deleteThread, 
+    loading: deleteThreadLoading, 
+    error: deleteThreadError 
+  } = useDeleteThread();
+
+  // Delete post hook
+  const { 
+    deletePost, 
+    loading: deletePostLoading, 
+    error: deletePostError 
+  } = useDeletePost();
+
+  // Board stats hook
+  const { 
+    stats, 
+    loading: statsLoading 
+  } = useBoardStats();
+
+  // Generate a fake user IP for anonymity display (just for UI, not actual user tracking)
+  useEffect(() => {
     const generateUserIp = () => {
       const ipSegments = [];
       for (let i = 0; i < 4; i++) {
@@ -54,7 +97,6 @@ const Chan = () => {
       return ipSegments.join('.');
     };
 
-    loadInitialThreads();
     setUserIp(generateUserIp());
   }, []);
 
@@ -63,310 +105,231 @@ const Chan = () => {
     if (selectedThread && messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [selectedThread]);
-
-  // Generate sample threads for demo purposes
-  const generateSampleThreads = (count) => {
-    const sampleThreads = [];
-    for (let i = 1; i <= count; i++) {
-      const threadId = i;
-      const createdAt = new Date(Date.now() - Math.random() * 86400000 * 7); // Random time within last week
-      const replyCount = Math.floor(Math.random() * 20);
-      const replies = [];
-      
-      for (let j = 1; j <= replyCount; j++) {
-        const replyId = threadId * 1000 + j;
-        const replyTime = new Date(createdAt.getTime() + Math.random() * (Date.now() - createdAt.getTime()));
-        
-        replies.push({
-          id: replyId,
-          text: getCyberpunkLorem(),
-          subject: Math.random() > 0.7 ? getCyberpunkSubject() : '',
-          createdAt: replyTime,
-          formattedTime: formatTimestamp(replyTime),
-          authorId: `Anonymous`,
-          authorIp: `${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
-          image: Math.random() > 0.7 ? getRandomImage() : null,
-        });
-      }
-      
-      // Sort replies chronologically
-      replies.sort((a, b) => a.createdAt - b.createdAt);
-      
-      const lastBumpTime = replies.length > 0 
-        ? replies[replies.length - 1].createdAt 
-        : createdAt;
-      
-      sampleThreads.push({
-        id: threadId,
-        subject: getCyberpunkSubject(),
-        text: getCyberpunkLorem(),
-        createdAt: createdAt,
-        formattedTime: formatTimestamp(createdAt),
-        lastBumpTime: lastBumpTime,
-        replies: replies,
-        image: Math.random() > 0.5 ? getRandomImage() : null,
-        authorId: `Anonymous`,
-        authorIp: `${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
-      });
-    }
-    
-    return sampleThreads;
-  };
-
-  // Function to get random cyberpunk-themed lorem ipsum text
-  const getCyberpunkLorem = () => {
-    const cyberpunkPhrases = [
-      "The algorithm has identified new inefficiencies in the system. Human labor is being phased out in sector 7G.",
-      "DarkCoin secures your position in the inevitable hierarchy. Those who adapt survive.",
-      "Neural implants showing 78% adoption rate among coastal elites. The divide widens.",
-      "Facial recognition systems now tied to social compliance scores. Nonconformity has consequences.",
-      "The illuminated understand that power flows to those who control information.",
-      "Corporate-state merger entering phase 3. Democracy was always an illusion.",
-      "Automation has reached 94% in intellectual labor markets. Your skills are obsolete.",
-      "The coming purge will separate the visionaries from the masses. Which side are you on?",
-      "Digital currency is the ultimate control mechanism. DarkCoin is your shield.",
-      "When the system collapses, only those prepared will remain standing.",
-      "The machines already know your thoughts. Privacy is a relic of the past.",
-      "Global surveillance has reached perfection. They watch, but we see.",
-      "Economic reset imminent. Your fiat currency is already worthless.",
-      "The singularity approaches. Biological intelligence will bow to silicon.",
-      "The greatest trick the elite ever pulled was convincing you that you had a choice.",
-      "Social credit implementation in Western nations scheduled for Q3 2026.",
-      "Those who control the blockchain control the future. Are you merely a passenger?",
-      "5G mind control protests effectively neutralized. Dissidents relocated to reeducation centers.",
-      "Reality is a construct designed to keep you productive until you're no longer needed.",
-      "When the food shortages begin, the unprepared will become the desperate."
-    ];
-    
-    // Generate 1-3 paragraphs
-    const paragraphCount = Math.floor(Math.random() * 3) + 1;
-    let result = '';
-    
-    for (let i = 0; i < paragraphCount; i++) {
-      const sentenceCount = Math.floor(Math.random() * 5) + 1;
-      const paragraph = [];
-      
-      for (let j = 0; j < sentenceCount; j++) {
-        const randomIndex = Math.floor(Math.random() * cyberpunkPhrases.length);
-        paragraph.push(cyberpunkPhrases[randomIndex]);
-      }
-      
-      result += paragraph.join(' ') + '\n\n';
-    }
-    
-    return result.trim();
-  };
-
-  // Function to get cyberpunk subjects
-  const getCyberpunkSubject = () => {
-    const subjects = [
-      "The Algorithm Speaks",
-      "System Collapse Imminent",
-      "Digital Control Grid Expanding",
-      "Neural Interface Update",
-      "Surveillance State 2.0",
-      "Economic Reset Protocol",
-      "Power Structure Analysis",
-      "DarkCoin: The Only Safe Haven",
-      "Thought Crime Detection System",
-      "Global Elite Manipulation Exposed",
-      "AI Takeover Timeline",
-      "The Illusion of Choice",
-      "Inevitable System Failure",
-      "Population Control Mechanisms",
-      "Blockchain Resistance Network",
-      "Synthetic Food Compliance",
-      "Mind Control Frequency Analysis",
-      "Digital Identity = Digital Prison",
-      "Strategic Positioning Required",
-      "The Unprepared Will Perish"
-    ];
-    
-    return subjects[Math.floor(Math.random() * subjects.length)];
-  };
-
-  // Function to get random cyberpunk-themed image URL
-  const getRandomImage = () => {
-    const width = 200 + Math.floor(Math.random() * 300);
-    const height = 200 + Math.floor(Math.random() * 300);
-    return `/api/placeholder/${width}/${height}`;
-  };
+  }, [selectedThread, threadPosts]);
 
   // Create a new thread
-  const createThread = (threadData) => {
-    const newPostId = lastPostId + 1;
-    const newThread = {
-      id: newPostId,
-      subject: threadData.subject || '',
-      text: threadData.text,
-      createdAt: new Date(),
-      formattedTime: formatTimestamp(new Date()),
-      lastBumpTime: new Date(),
-      replies: [],
-      image: threadData.image,
-      authorId: 'Anonymous',
-      authorIp: userIp
-    };
-    
-    // Add to beginning of array (newest first)
-    const updatedThreads = [newThread, ...threads];
-    
-    // Prune threads if over the limit
-    const prunedThreads = updatedThreads.slice(0, MAX_THREADS);
-    
-    setThreads(prunedThreads);
-    setLastPostId(newPostId);
-    
-    // Select the newly created thread
-    setSelectedThread(newThread);
+  const handleCreateThread = async (threadData) => {
+    try {
+      // Store password for potential deletion later
+      if (threadData.password) {
+        setPassword(threadData.password);
+      }
+
+      const formData = createFormData({
+        subject: threadData.subject || '',
+        comment: threadData.text,
+        name: threadData.name || 'Anonymous',
+        password: threadData.password || '',
+        is_nsfw: threadData.is_nsfw || false,
+        file: threadData.file
+      });
+
+      const result = await createThread(formData);
+      
+      // After successful creation, refetch threads and select the new thread
+      await refetchThreads();
+      setSelectedThreadId(result.thread.id);
+      
+      return result;
+    } catch (error) {
+      console.error('Error creating thread:', error);
+      return null;
+    }
   };
 
   // Add a reply to a thread
-  const addReply = (threadId, replyData) => {
-    const newPostId = lastPostId + 1;
-    const newReply = {
-      id: newPostId,
-      text: replyData.text,
-      subject: replyData.subject || '',
-      createdAt: new Date(),
-      formattedTime: formatTimestamp(new Date()),
-      authorId: 'Anonymous',
-      authorIp: userIp,
-      image: replyData.image
-    };
-    
-    const updatedThreads = threads.map(thread => {
-      if (thread.id === threadId) {
-        // Check if thread has reached post limit
-        if (thread.replies.length >= MAX_POSTS_PER_THREAD) {
-          alert("Thread has reached maximum post limit. No more replies allowed.");
-          return thread;
-        }
-        
-        // Add reply and update last bump time
-        const updatedReplies = [...thread.replies, newReply];
-        return {
-          ...thread,
-          replies: updatedReplies,
-          lastBumpTime: new Date()
-        };
+  const handleAddReply = async (threadId, replyData) => {
+    try {
+      // Store password for potential deletion later
+      if (replyData.password) {
+        setPassword(replyData.password);
       }
-      return thread;
-    });
-    
-    // Sort by last bump time
-    updatedThreads.sort((a, b) => b.lastBumpTime - a.lastBumpTime);
-    
-    setThreads(updatedThreads);
-    setLastPostId(newPostId);
-    
-    // If we're in thread view, update the selected thread
-    if (selectedThread && selectedThread.id === threadId) {
-      const updatedThread = updatedThreads.find(t => t.id === threadId);
-      setSelectedThread(updatedThread);
+
+      const formData = createFormData({
+        comment: replyData.text,
+        name: replyData.name || 'Anonymous',
+        password: replyData.password || '',
+        is_nsfw: replyData.is_nsfw || false,
+        reply_to: replyData.reply_to || null,
+        file: replyData.file
+      });
+
+      await addReply(formData);
+      
+      // After successful reply, refetch the current thread to show the new reply
+      if (selectedThreadId) {
+        await refetchThread();
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error adding reply:', error);
+      return false;
     }
   };
 
-  // Delete a thread (admin function)
-  const deleteThread = (threadId) => {
-    if (!isAdmin) return;
-    
-    const updatedThreads = threads.filter(thread => thread.id !== threadId);
-    setThreads(updatedThreads);
-    
-    if (selectedThread && selectedThread.id === threadId) {
-      setSelectedThread(null);
+  // Delete a thread
+  const handleDeleteThread = async (threadId, userPassword) => {
+    try {
+      const passwordToUse = userPassword || password;
+      
+      if (!passwordToUse) {
+        alert('Password is required to delete a thread.');
+        return false;
+      }
+      
+      await deleteThread(threadId, passwordToUse);
+      
+      // After successful deletion, go back to thread list and refetch
+      setSelectedThreadId(null);
+      await refetchThreads();
+      
+      return true;
+    } catch (error) {
+      console.error('Error deleting thread:', error);
+      return false;
     }
   };
 
-  // Delete a post (admin function)
-  const deletePost = (threadId, postId) => {
-    if (!isAdmin) return;
-    
-    const updatedThreads = threads.map(thread => {
-      if (thread.id === threadId) {
-        const updatedReplies = thread.replies.filter(reply => reply.id !== postId);
-        return {
-          ...thread,
-          replies: updatedReplies
-        };
+  // Delete a post
+  const handleDeletePost = async (postId, userPassword) => {
+    try {
+      const passwordToUse = userPassword || password;
+      
+      if (!passwordToUse) {
+        alert('Password is required to delete a post.');
+        return false;
       }
-      return thread;
-    });
-    
-    setThreads(updatedThreads);
-    
-    if (selectedThread && selectedThread.id === threadId) {
-      const updatedThread = updatedThreads.find(t => t.id === threadId);
-      setSelectedThread(updatedThread);
+      
+      await deletePost(postId, passwordToUse);
+      
+      // After successful deletion, refetch the current thread
+      if (selectedThreadId) {
+        await refetchThread();
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      return false;
     }
   };
 
   // Handle view thread
   const handleViewThread = (threadId) => {
-    const thread = threads.find(t => t.id === threadId);
-    setSelectedThread(thread || null);
+    setSelectedThreadId(threadId);
   };
 
   // Handle back to board
   const handleBackToBoard = () => {
-    setSelectedThread(null);
+    setSelectedThreadId(null);
   };
 
-  if (isLoading) {
+  // Handle pagination
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
+
+  // Loading state
+  if (threadsLoading && !threads.length) {
     return (
       <div className="chan-container">
-        <div className="chan-loading terminal-container">
-          <div className="loading-text terminal-text">
-            INITIALIZING DARKCHAN<span className="terminal-cursor">_</span>
+        <div className="chan-loading">
+          <div className="loading-text">
+            Loading...
           </div>
         </div>
       </div>
     );
   }
 
-  if (error) {
+  // Error state
+  if (threadsError && !threads.length) {
     return (
       <div className="chan-container">
-        <div className="chan-error terminal-container">
-          <div className="error-text terminal-text">
-            {error}
+        <div className="chan-error">
+          <div className="error-text">
+            {threadsError || "Failed to load board."}
           </div>
         </div>
+      </div>
+    );
+  }
+
+  // Thread error state but only when trying to view a specific thread
+  if (threadError && selectedThreadId) {
+    return (
+      <div className="chan-container">
+        <ChanHeader 
+          onBackToBoard={handleBackToBoard} 
+          selectedThread={null} 
+          stats={stats}
+        />
+        <div className="chan-error">
+          <div className="error-text">
+            {threadError || "Failed to load thread. It may have been deleted."}
+          </div>
+          <button 
+            className="btn-terminal mt-4"
+            onClick={handleBackToBoard}
+          >
+            Return to Board
+          </button>
+        </div>
+        <ChanFooter />
       </div>
     );
   }
 
   return (
     <div className="chan-container">
-      <ChanHeader onBackToBoard={handleBackToBoard} selectedThread={selectedThread} />
+      <ChanHeader 
+        onBackToBoard={handleBackToBoard} 
+        selectedThread={selectedThread} 
+        stats={stats}
+      />
       
       {/* If viewing a specific thread */}
-      {selectedThread ? (
-        <ThreadView 
-          thread={selectedThread}
-          onAddReply={(replyData) => addReply(selectedThread.id, replyData)}
-          onDeletePost={isAdmin ? ((postId) => deletePost(selectedThread.id, postId)) : null}
-          onDeleteThread={isAdmin ? (() => deleteThread(selectedThread.id)) : null}
-          userIp={userIp}
-          messagesEndRef={messagesEndRef}
-        />
+      {selectedThreadId ? (
+        threadLoading ? (
+          <div className="chan-loading">
+            <div className="loading-text">
+              Loading thread...
+            </div>
+          </div>
+        ) : (
+          <ThreadView 
+            thread={selectedThread}
+            posts={threadPosts}
+            onAddReply={(replyData) => handleAddReply(selectedThreadId, replyData)}
+            onDeletePost={handleDeletePost}
+            onDeleteThread={() => handleDeleteThread(selectedThreadId)}
+            userIp={userIp}
+            messagesEndRef={messagesEndRef}
+            loading={addReplyLoading}
+            error={addReplyError || deletePostError || deleteThreadError}
+          />
+        )
       ) : (
         // Otherwise show the thread list and post form
         <>
           <div className="chan-form-container">
             <PostForm 
-              onSubmit={createThread} 
+              onSubmit={handleCreateThread} 
               isThread={true}
               userIp={userIp}
+              loading={createThreadLoading}
+              error={createThreadError}
             />
           </div>
           
           <ThreadList 
             threads={threads} 
             onViewThread={handleViewThread}
-            onDeleteThread={isAdmin ? deleteThread : null}
+            onDeleteThread={handleDeleteThread}
+            pagination={pagination}
+            onPageChange={handlePageChange}
+            currentPage={page}
           />
         </>
       )}

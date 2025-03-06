@@ -1,44 +1,137 @@
-/* ThreadView component styles */
+/* ThreadView component styles - Exact 4chan replica */
 
 .thread-view {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  
-  .thread-view-op {
-    padding: 15px;
-    margin-bottom: 10px;
-    background-color: #f0e0d6;
-    border: 1px solid #d9bfb7;
-  }
-  
-  .thread-stats {
-    margin-bottom: 10px;
-    font-size: 12px;
-    color: #666;
-    display: flex;
-    gap: 15px;
-  }
-  
-  .thread-view-replies {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .thread-view-reply {
-    padding: 15px;
-    animation: fadeIn 0.3s ease-in-out;
-    background-color: #f0e0d6;
-    border: 1px solid #d9bfb7;
-  }
-  
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  
-  .thread-view-form {
-    margin-top: 20px;
-  }
+  margin: 0;
+  padding: 0;
+  background-color: #1D1F21;
+}
+
+.thread-view-op {
+  padding: 0;
+  margin: 0 0 4px 0;
+  border: none;
+  background-color: transparent;
+}
+
+.thread-stats {
+  margin: 2px 0;
+  font-size: 12px;
+  color: #707070;
+  display: flex;
+  gap: 12px;
+}
+
+.thread-view-replies {
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+
+/* Single level indentation for all replies */
+.thread-view-reply {
+  padding: 0;
+  margin: 4px 0 4px 20px;
+  border: none;
+  background-color: transparent;
+  position: relative;
+}
+
+/* The >> marker next to replies */
+.quote-arrow {
+  color: #707070;
+  font-weight: normal;
+  position: absolute;
+  left: -16px;
+  top: 0;
+}
+
+/* Quoted post reference */
+.quoted-post {
+  color: #789922;
+  text-decoration: underline;
+}
+
+.quoted-post:hover {
+  text-decoration: none;
+}
+
+/* Reply form container - fixed position when active */
+.reply-form-container {
+  display: none; /* Hidden by default */
+  position: fixed;
+  top: 50px;
+  right: 20px;
+  width: 300px;
+  background-color: #282A2E;
+  border: 1px solid #333;
+  padding: 8px;
+  z-index: 1000;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.reply-form-container.active {
+  display: block;
+}
+
+/* Close button for reply form */
+.reply-form-close {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: none;
+  border: none;
+  color: #707070;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.reply-form-close:hover {
+  color: #FFFFFF;
+}
+
+/* Reply form title */
+.reply-form-title {
+  margin: 0 0 10px 0;
+  padding: 0 0 5px 0;
+  border-bottom: 1px solid #333;
+  font-size: 14px;
+  color: #FFFFFF;
+}
+
+/* OP indicator */
+.op-marker {
+  color: #789922;
+  font-weight: bold;
+  font-size: 12px;
+  padding: 0 5px;
+}
+
+/* Post reference link styling */
+.post-ref-link {
+  color: #789922;
+  text-decoration: underline;
+}
+
+.post-ref-link:hover {
+  text-decoration: none;
+}
+
+/* Reply targets highlight */
+.reply-target {
+  background-color: rgba(121, 153, 34, 0.1);
+}
+
+/* Back to bottom link */
+.back-to-bottom {
+  text-align: center;
+  margin: 15px 0;
+}
+
+.back-to-bottom a {
+  color: #789922;
+  text-decoration: none;
+}
+
+.back-to-bottom a:hover {
+  text-decoration: underline;
+}
