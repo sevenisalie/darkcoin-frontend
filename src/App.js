@@ -7,8 +7,9 @@ import Roadmap from './components/Roadmap';
 import BuySection from './components/BuySection';
 import FAQ from './components/FAQ';
 import Footer from './components/Footer';
-import { Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Chan from './components/Chan/Chan';
+import ThreadPage from './components/Chan/components/ThreadPage';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -60,6 +61,8 @@ function App() {
           </main>
         } />
         <Route path="/chan" element={<Chan />} />
+        <Route path="/chan/thread/:threadId" element={<ThreadPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <Footer />
     </div>

@@ -55,6 +55,25 @@
   text-decoration: none;
 }
 
+/* Main reply form at the bottom of the thread */
+.main-reply-form {
+  margin: 15px 0;
+  padding: 0;
+  background-color: #282A2E;
+}
+
+.reply-form-header {
+  background-color: #333;
+  padding: 4px 0;
+  margin-bottom: 0;
+}
+
+.form-title {
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: bold;
+}
+
 /* Reply form container - fixed position when active */
 .reply-form-container {
   display: none; /* Hidden by default */

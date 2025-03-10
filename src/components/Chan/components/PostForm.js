@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/PostForm.css';
 import { uuidToPostNumber } from '../utils/postNumber';
+
 const PostForm = ({ 
   onSubmit, 
   isThread = false, 
@@ -21,12 +22,19 @@ const PostForm = ({
   const [localError, setLocalError] = useState('');
   const [filePreview, setFilePreview] = useState(null);
 
-  // Initialize reply text if replying to a specific post
+  
+
   useEffect(() => {
     if (replyToPost) {
+      // Store the ID to use for the reply_to field
       setReplyTo(replyToPost.id);
+      
+      // Only generate a quote number if it's not the original post (thread)
       const postNum = uuidToPostNumber(replyToPost.id);
       setText(`>>${postNum}\n`);
+      
+      // Debug
+      console.log(`Replying to post ID: ${replyToPost.id}`);
     }
   }, [replyToPost]);
 
@@ -113,11 +121,9 @@ const PostForm = ({
     
     // Check if text contains a reply reference (>>123456)
     const matches = text.match(/&gt;&gt;(\d+)/g) || text.match(/>>(\d+)/g);
-    if (matches && matches.length > 0) {
-      // Extract the last post ID referenced
-      const lastMatch = matches[matches.length - 1];
-      const postId = lastMatch.replace(/&gt;&gt;|>>/g, '');
-      setReplyTo(postId);
+    if (matches && matches.length > 0 && replyToPost) {
+      // Use the existing replyToPost.id as this is the actual database ID
+      setReplyTo(replyToPost.id);
     } else if (replyToPost) {
       // Keep original reply target if manually set
       setReplyTo(replyToPost.id);
@@ -134,7 +140,7 @@ const PostForm = ({
       {!compact && (
         <div className="post-form-header">
           <span className="form-title">
-            {isThread ? 'Create New Thread' : `Reply to Thread${replyToPost ? ` No.${replyToPost.id}` : ''}`}
+            {isThread ? 'Create New Thread' : `Reply to Thread${replyToPost ? ` No.${uuidToPostNumber(replyToPost.id)}` : ''}`}
           </span>
         </div>
       )}
@@ -246,7 +252,6 @@ const PostForm = ({
           <div className="form-footer">
             <div className="user-info">
               <span className="user-id">ID: Anonymous</span>
-         
             </div>
             
             <button 
