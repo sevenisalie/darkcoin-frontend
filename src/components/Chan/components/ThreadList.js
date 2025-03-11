@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import ThreadPreview from './ThreadPreview';
 import '../styles/ThreadList.css';
 
@@ -96,9 +97,9 @@ const ThreadList = ({
   const renderBoardNav = () => {
     return (
       <div className="board-nav">
-        <a href="/" className="board-nav-link">Home</a>
-        <a href="#" className="board-nav-link">Catalog</a>
-        <a href="#" className="board-nav-link">Archive</a>
+        <Link to="/" className="board-nav-link">Home</Link>
+        <Link to="/chan" className="board-nav-link">Catalog</Link>
+        <Link to="/chan" className="board-nav-link">Archive</Link>
         <a href="#bottom" className="board-nav-link">Bottom</a>
       </div>
     );

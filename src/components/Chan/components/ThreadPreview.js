@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Post from './Post';
 import '../styles/ThreadPreview.css';
 
@@ -39,12 +40,14 @@ const ThreadPreview = ({ thread, onViewThread, onDeleteThread }) => {
   const replyCount = thread.replies_count || 0;
   const imageCount = thread.images_count || 0;
   
-  const handleViewThread = () => {
+  const handleViewThread = (e) => {
+    e.preventDefault();
     onViewThread(thread.id);
   };
 
   const handleDeleteThread = (e) => {
     e.stopPropagation();
+    e.preventDefault();
     if (onDeleteThread && window.confirm('Are you sure you want to delete this thread?')) {
       onDeleteThread(thread.id);
     }
@@ -78,7 +81,13 @@ const ThreadPreview = ({ thread, onViewThread, onDeleteThread }) => {
       <div className="omitted-message">
         <span className="plus-icon">+</span>
         <span className="omitted-message-text">{omittedText}</span>
-        <span className="expand-button" onClick={handleViewThread}>Click here</span> to view.
+        <Link 
+          to={`/chan/thread/${thread.id}`}
+          className="expand-button"
+          onClick={handleViewThread}
+        >
+          Click here
+        </Link> to view.
       </div>
     );
   };
@@ -89,13 +98,14 @@ const ThreadPreview = ({ thread, onViewThread, onDeleteThread }) => {
       {renderFileInfo()}
       
       {/* Original Post */}
-      <div className="thread-op" onClick={handleViewThread}>
-        <Post 
-          post={formattedThread}
-          isOp={true}
-          onDelete={onDeleteThread ? handleDeleteThread : null}
-          onViewThread={handleViewThread}
-        />
+      <div className="thread-op">
+        <Link to={`/chan/thread/${thread.id}`} onClick={handleViewThread} className="thread-link">
+          <Post 
+            post={formattedThread}
+            isOp={true}
+            onDelete={onDeleteThread ? handleDeleteThread : null}
+          />
+        </Link>
       </div>
       
       {/* Omitted message */}
@@ -103,29 +113,29 @@ const ThreadPreview = ({ thread, onViewThread, onDeleteThread }) => {
       
       {/* Preview of replies if available */}
       {formattedPreviewPosts.length > 0 && (
-        <div className="thread-replies" onClick={handleViewThread}>
+        <div className="thread-replies">
           {formattedPreviewPosts.map(reply => (
-            <Post 
-              key={reply.id}
-              post={reply}
-              isPreview={true}
-            />
+            <div className='thread-view-reply'>
+              <Post 
+                opId={thread.id}
+                post={reply}
+                isPreview={true}
+                hhandleViewThread={handleViewThread}
+              />
+            </div>
           ))}
         </div>
       )}
       
-      {/* Reply link (instead of View Thread button) */}
+      {/* Reply link */}
       <div className="reply-link-container">
-        <a 
-          href="#"
+        <Link 
+          to={`/chan/thread/${thread.id}`}
           className="reply-link"
-          onClick={(e) => {
-            e.preventDefault();
-            handleViewThread();
-          }}
+          onClick={handleViewThread}
         >
           Reply
-        </a>
+        </Link>
       </div>
     </div>
   );

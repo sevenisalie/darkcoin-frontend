@@ -242,10 +242,24 @@ export const createFormData = (data) => {
   const formData = new FormData();
   
   Object.keys(data).forEach(key => {
+    // Special handling for file uploads
     if (key === 'file' && data[key]) {
       formData.append('file', data[key]);
-    } else if (data[key] !== undefined && data[key] !== null) {
-      formData.append(key, data[key]);
+    } 
+    // Special handling for reply_to - only include if it has a valid value
+    else if (key === 'reply_to') {
+      if (data[key] && data[key] !== 'null' && data[key] !== 'undefined') {
+        formData.append(key, data[key]);
+      }
+    }
+    // Handle all other fields
+    else if (data[key] !== undefined && data[key] !== null) {
+      // Convert booleans to strings for FormData
+      if (typeof data[key] === 'boolean') {
+        formData.append(key, data[key].toString());
+      } else {
+        formData.append(key, data[key]);
+      }
     }
   });
   

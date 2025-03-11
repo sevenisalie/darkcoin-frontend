@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Post from './Post';
 import PostForm from './PostForm';
 import '../styles/ThreadView.css';
-import {uuidToPostNumber} from "../utils/postNumber.js"
+import { uuidToPostNumber } from "../utils/postNumber.js";
 
 const ThreadView = ({ 
   thread, 
@@ -69,18 +69,34 @@ const ThreadView = ({
     setReplyTarget(null);
   };
 
-  // Submit reply
-  const handleSubmitReply = (replyData) => {
-    // Add reply_to field if replying to a specific post
-    if (replyTarget) {
+// Submit reply
+const handleSubmitReply = async (replyData) => {
+  try {
+    // When replying to OP, don't set reply_to as OP is in the threads table not posts
+    if (replyTarget && replyTarget.id === thread.id) {
+      // When replying to the OP, set reply_to to null
+      replyData.reply_to = null;
+    } else if (replyTarget) {
+      // When replying to another post, set reply_to to that post's ID
       replyData.reply_to = replyTarget.id;
+    } else {
+      // Default case - not replying to anything specific
+      replyData.reply_to = null;
     }
     
-    onAddReply(replyData);
-    setReplyFormVisible(false);
-    setReplyTarget(null);
-    return true;
-  };
+    const success = await onAddReply(replyData);
+    
+    if (success) {
+      setReplyFormVisible(false);
+      setReplyTarget(null);
+    }
+    
+    return success;
+  } catch (error) {
+    console.error('Error submitting reply:', error);
+    return false;
+  }
+};
 
   // Format the thread data to match our component's expected format
   const formattedThread = {
@@ -153,6 +169,21 @@ const ThreadView = ({
             />
           </div>
         ))}
+      </div>
+      
+      {/* Main reply form at bottom of thread */}
+      <div className="main-reply-form mt-6 mb-8">
+        <div className="reply-form-header">
+          <div className="form-title px-4 py-2 bg-terminal-dark">Post a Reply</div>
+        </div>
+        <PostForm 
+          onSubmit={handleSubmitReply} 
+          isThread={false}
+          userIp={userIp}
+          threadId={thread.id}
+          loading={loading}
+          error={error}
+        />
       </div>
       
       {/* Floating Reply Form - only shown when a Reply link is clicked */}

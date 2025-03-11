@@ -9,7 +9,9 @@
 }
 
 .post-op {
-  margin: 4px 0 7px 0;
+  margin: 12px 0 12px 0;
+  padding: 4px 6px 4px 6px;
+  background-color: transparent !important;
 }
 
 .post-preview {
@@ -81,6 +83,7 @@
 
 /* Critical fixes for post content and image display */
 .post-content {
+  padding: 16px 24px 16px 24px;
   display: block;
   position: static; /* Changed from relative to avoid creating stacking contexts */
   overflow: hidden; /* Clear floats */
@@ -114,6 +117,7 @@
 
 .post-text {
   font-size: 14px;
+  padding: 0px 6px 0px 6px;
   line-height: 1.4;
   color: #FFFFFF;
   font-family: arial, helvetica, sans-serif;

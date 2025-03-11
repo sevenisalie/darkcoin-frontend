@@ -1,8 +1,9 @@
 import React from 'react';
 import '../styles/Post.css';
 import { uuidToPostNumber, getRepeatingType } from '../utils/postNumber';
+import { Link } from 'react-router-dom';
 
-const Post = ({ post, isOp = false, isPreview = false, onDelete = null, onReply = null, replyRef = null }) => {
+const Post = ({ post, isOp = false, isPreview = false, onDelete = null, onReply = null, replyRef = null, opId, handleViewThread }) => {
   const { id, subject, text, formattedTime, authorId, authorIp, image, tripcode, reply_to } = post;
   
   // Convert UUID to post number
@@ -12,6 +13,7 @@ const Post = ({ post, isOp = false, isPreview = false, onDelete = null, onReply 
   // Function to handle quoting posts
   const handleQuote = (event) => {
     event.preventDefault();
+    event.stopPropagation();
     
     // Find the closest reply form
     const replyForm = document.querySelector('.post-form textarea');
@@ -39,7 +41,15 @@ const Post = ({ post, isOp = false, isPreview = false, onDelete = null, onReply 
     return (
       <div className="file-section">
         <span className="file-tag">File: </span>
-        <a href={image} target="_blank" rel="noreferrer" className="file-original">{fileName}</a>
+        <a 
+          href={image} 
+          target="_blank" 
+          rel="noreferrer" 
+          className="file-original"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {fileName}
+        </a>
         <span className="file-dimensions"> ({fileSize}, {dimensions})</span>
       </div>
     );
@@ -54,7 +64,11 @@ const Post = ({ post, isOp = false, isPreview = false, onDelete = null, onReply 
     
     return (
       <div className="reply-reference">
-        <a href={`#p${replyRef.id}`} className="quoted-post">
+        <a 
+          href={`#p${replyRef.id}`} 
+          className="quoted-post"
+          onClick={(e) => e.stopPropagation()}
+        >
           &gt;&gt;{refPostNumber}
           {replyRef.isOp ? ' (OP)' : ''}
         </a>
@@ -105,7 +119,10 @@ const Post = ({ post, isOp = false, isPreview = false, onDelete = null, onReply 
               key={`${lineIndex}-${match.index}`}
               href={`#p${postId}`}
               className="post-reference"
-              onClick={handleQuote}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleQuote(e);
+              }}
             >
               {`>>${postId}`}
             </a>
@@ -151,8 +168,18 @@ const Post = ({ post, isOp = false, isPreview = false, onDelete = null, onReply 
   // Handle reply button click
   const handleReplyClick = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     if (onReply) {
       onReply();
+    }
+  };
+
+  // Handle delete button click
+  const handleDeleteClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onDelete) {
+      onDelete(e);
     }
   };
 
@@ -188,7 +215,11 @@ const Post = ({ post, isOp = false, isPreview = false, onDelete = null, onReply 
           {formattedTime}
         </span>
         
-        <a href={`#p${id}`} className="post-number">
+        <a 
+          href={`#p${id}`} 
+          className="post-number"
+          onClick={(e) => e.stopPropagation()}
+        >
           No.{postNumber}
           {repeatingType && (
             <span className={`post-repeating ${repeatingType}`} title={`This post has ${repeatingType}!`}>
@@ -210,12 +241,38 @@ const Post = ({ post, isOp = false, isPreview = false, onDelete = null, onReply 
             [Reply]
           </a>
         )}
+
+        { isPreview && (
+                  <Link 
+                  to={`/chan/thread/${opId}`}
+                  className="post-reply-link"
+                  onClick={handleViewThread}
+                >
+                  [Reply]
+                </Link>
+        )}
+        
+        {/* Delete button for threads/posts that have an onDelete handler */}
+        {onDelete && (
+          <a 
+            href="#" 
+            onClick={handleDeleteClick} 
+            className="post-delete-btn"
+          >
+            [Delete]
+          </a>
+        )}
       </div>
       
       <div className="post-content">
         {image && (
           <div className="post-image">
-            <a href={image} target="_blank" rel="noopener noreferrer">
+            <a 
+              href={image} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+            >
               <img src={image} alt="Post attachment" />
             </a>
           </div>
