@@ -1,8 +1,9 @@
 import React from 'react';
 import '../styles/Post.css';
 import { uuidToPostNumber, getRepeatingType } from '../utils/postNumber';
+import { Link } from 'react-router-dom';
 
-const Post = ({ post, isOp = false, isPreview = false, onDelete = null, onReply = null, replyRef = null }) => {
+const Post = ({ post, isOp = false, isPreview = false, onDelete = null, onReply = null, replyRef = null, opId, handleViewThread }) => {
   const { id, subject, text, formattedTime, authorId, authorIp, image, tripcode, reply_to } = post;
   
   // Convert UUID to post number
@@ -239,6 +240,16 @@ const Post = ({ post, isOp = false, isPreview = false, onDelete = null, onReply 
           >
             [Reply]
           </a>
+        )}
+
+        { isPreview && (
+                  <Link 
+                  to={`/chan/thread/${opId}`}
+                  className="post-reply-link"
+                  onClick={handleViewThread}
+                >
+                  [Reply]
+                </Link>
         )}
         
         {/* Delete button for threads/posts that have an onDelete handler */}

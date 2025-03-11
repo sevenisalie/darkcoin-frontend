@@ -83,6 +83,7 @@
 
 /* Critical fixes for post content and image display */
 .post-content {
+  padding: 16px 24px 16px 24px;
   display: block;
   position: static; /* Changed from relative to avoid creating stacking contexts */
   overflow: hidden; /* Clear floats */

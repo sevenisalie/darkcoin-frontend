@@ -115,17 +115,14 @@ const ThreadPreview = ({ thread, onViewThread, onDeleteThread }) => {
       {formattedPreviewPosts.length > 0 && (
         <div className="thread-replies">
           {formattedPreviewPosts.map(reply => (
-            <Link 
-              key={reply.id} 
-              to={`/chan/thread/${thread.id}`} 
-              onClick={handleViewThread}
-              className="reply-link"
-            >
+            <div className='thread-view-reply'>
               <Post 
+                opId={thread.id}
                 post={reply}
                 isPreview={true}
+                hhandleViewThread={handleViewThread}
               />
-            </Link>
+            </div>
           ))}
         </div>
       )}
